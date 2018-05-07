@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customers Management</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://fb.me/react-15.0.1.js"></script>
+    <script src="https://fb.me/react-dom-15.0.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+</head>
+<body>
+<div class="container">
+    <h1>Customers Services</h1>
+    <div class="row">
+        <div class="col-xs-6">
+            <h4>Add/Update Customer</h4>
+            <div class="form-group">
+                <label for="inputId">Id</label>
+                <input class="form-control" id="inputId" aria-describedby="Customer Id" placeholder="Customer Id">
+            </div>
+            <div class="form-group">
+                <label for="inputName">Full Name</label>
+                <input class="form-control" id="inputName" placeholder="Customer Full Name">
+            </div>
+            <div class="form-group">
+                <label for="inputAddress">Address</label>
+                <input class="form-control" id="inputAddress" placeholder="Customer Address">
+            </div>
+            <div class="form-group">
+                <label for="inputPhone">Phone</label>
+                <input class="form-control" id="inputPhone" placeholder="Customer Phone">
+            </div>
+            <button type="submit" onclick="handleAddCustomer()" class="btn btn-primary">Add New Customer</button>
+            <button onclick="updateCustomer()" class="btn btn-primary">Update Customer</button>
+        </div>
+
+        <div id='customersList' class="col-xs-6">
+            <h2>Customers</h2>
+        </div>
+    </div>
+</div>
+<script>
+
+    function updateCustomer() {
+        $.ajax({
+            type: 'POST',
+            url: "http://localhost:8080/api/updateCustomer",
+            timeout: 300000,
+            data: jQuery.param(
+                {
+                    id: Number($("#inputId").val()),
+                    name: $("#inputName").val(),
+                    address: $("#inputAddress").val(),
+                    phone: $("#inputPhone").val()
+                }
+            ),
+            dataType: "json",
+            success: function (response) {
+                console.log(response);
+            },
+            error: function (response) {
+                console.log("Failed to delete Customer - response[" + response + "]");
+            }
+        });
+        window.location.reload();
+    }
+
+    function handleAddCustomer() {
+        $.ajax({
+            type: 'POST',
+            url: "http://localhost:8080/api/createCustomer",
+            timeout: 300000,
+            data: jQuery.param(
+                {
+                    id: Number($("#inputId").val()),
+                    name: $("#inputName").val(),
+                    address: $("#inputAddress").val(),
+                    phone: $("#inputPhone").val()
+                }
+            ),
+            dataType: "json",
+            success: function (response) {
+                console.log(response);
+                location.reload();
+            },
+            error: function (response) {
+                console.log("Failed to delete Customer - response[" + response + "]");
+            }
+        });
+        window.location.reload();
+    }
+
+
+</script>
+
+<script type="text/babel">
+    let handleUpdate = (id, name, address, phone) => {
+        $("#inputId").val(id);
+        $("#inputName").val(name);
+        $("#inputAddress").val(address);
+        $("#inputPhone").val(phone);
+    };
+
+
+    let handleDelete = (id) => {
+        $.ajax({
+            type: 'POST',
+            url: "http://localhost:8080/api/deleteCustomer",
+            timeout: 300000,
+            data: jQuery.param({id: id}),
+            success: function (response) {
+                console.log(response);
+                window.location.reload();
+            },
+            error: function (response) {
+                console.log("Failed to delete Customer - response[" + response + "]");
+            }
+        });
+    };
+
+
+    let Customer = React.createClass({
+
+        render: function () {
+            const {customer} = this.props;
+            return (
+
+                    <tr className="customer_row" key={customer.id}>
+                        <td>{customer.id}</td>
+                        <td>{customer.name}</td>
+                        <td>{customer.address}</td>
+                        <td>{customer.phone}</td>
+                        <td>
+                            <button className="btn btn-info" onClick={function () {
+                                handleUpdate(customer.id, customer.name, customer.address, customer.phone)
+                            }}>Update
+                            </button>
+                        </td>
+                        <td>
+                            <button className="btn btn-warning" onClick={function () {
+                                handleDelete(customer.id)
+                            }}>Delete
+                            </button>
+                        </td>
+                    </tr>
+            );
+        },
+    });
+
+    let CustomerTable = React.createClass({
+        render: function () {
+            let rows = [];
+            this.props.customers.forEach(function (customer) {
+                rows.push(<Customer customer={customer} key={customer.id}/>);
+            });
+            return (
+                    <table className="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>Phone</th>
+                        </tr>
+                        </thead>
+                        <tbody>{rows}</tbody>
+                    </table>);
+        }
+    });
+
+    let App = React.createClass({
+
+        loadCustomersFromServer: function () {
+
+            fetch("http://localhost:8080/api/getAllCustomers")
+                .then(res => res.json())
+                .then(
+                    (result) => {
+                        this.setState({customers: result});
+                    },
+                    (error) => {
+                        this.setState({
+                            isLoaded: true,
+                            error
+                        });
+                    }
+                )
+        },
+
+        getInitialState: function () {
+            return {customers: []};
+        },
+
+        componentDidMount: function () {
+            this.loadCustomersFromServer();
+        },
+
+        render() {
+            return (
+                    <CustomerTable customers={this.state.customers}/>
+            );
+        }
+    });
+
+    ReactDOM.render(<App/>, document.getElementById('customersList'));
+</script>
+
+</body>
+</html>
