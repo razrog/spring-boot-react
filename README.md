@@ -40,10 +40,3 @@ http://localhost:8080/swagger-ui.html#/
 ```
 http://localhost:8080/h2-console/login.jsp?jsessionid=c257545db024799ed3fe3be504293bf3
 ```
-
-
-* H2 Console
-
-```
-http://localhost:8080/h2-console/login.jsp?jsessionid=c257545db024799ed3fe3be504293bf3
-```
