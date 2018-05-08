@@ -16,8 +16,14 @@ java -jar spring-boot-react/excutable/docker-spring-boot.jar
 ```
 
 ## Running The Server Docker Image
-```
+#####** Since there is currently an issue uploading the image to docker-hub, here are the instructions 
+#####on how to build and run the docker image. 
 
+```
+1.git clone https://github.com/razrog/spring-boot-react.git
+2.cd spring-boot-react
+3.docker build -f Dockerfile -t docker-spring-boot-image .
+4.docker run -p 8080:8080 docker-spring-boot
 ```
 
 
